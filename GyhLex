@@ -2,11 +2,15 @@ package AnalisadorLexico;
 
 public class GyhLex {
 
-    public LeitorArquivo ldat;
+     public LeitorArquivo ldat;
     public int linha = 1;
     int auxInt = 0;
+    public String cadeia = "";
+    public String cadeiaAux = "";
+    
     int condicional = 0;
     int condicionalNum = 0;
+    int condicionalC = 0;
     public String aux = "";
     public char auxC=' ';
     public String var = "";
@@ -25,7 +29,8 @@ public class GyhLex {
         
         while ((proxCaractere = ldat.lerProximoCaractere()) != -1) {
             char c = (char) proxCaractere;
-            //System.out.print(c);
+            //System.out.println(c);
+            
             //System.out.println(linha);
             if (c == ' ' || c == '\n') {
                 aux = "";
@@ -77,18 +82,16 @@ public class GyhLex {
             }
             
             //Verificar variaveis-----------------------------------------------
-            if (Character.isUpperCase(c)) {
-                while (Character.isLetter(c)) {
+            if (Character.isUpperCase(c) && var.equals("")) {
+                while (Character.isLetter(c) && c!='[') {
                     var = var + c;
                     proxCaractere = ldat.lerProximoCaractere();
                     c = (char) proxCaractere;
                     
-                    //System.out.print(c);
                     if (c == '[') {
                         //System.out.println("achei o danado");
                         condicional =0;
                         gambiarra = '[';
-                       
                     }
                     if (c=='\n'){
                         linha++;
@@ -106,7 +109,34 @@ public class GyhLex {
                     return (new Token(var2, TipoToken.Var, linha));
                 }
             }
-
+            
+            //Cadeia de caracteres----------------------------------------------
+            if(c=='"'){
+                cadeia = cadeia + c;
+                proxCaractere = ldat.lerProximoCaractere();
+                c = (char) proxCaractere;
+                
+                while(c!='"'){
+                    cadeia = cadeia + c;
+                    proxCaractere = ldat.lerProximoCaractere();
+                    c = (char) proxCaractere;
+                    
+                    if (c=='\n'){
+                        linha++;
+                        condicionalC = 1;
+                    }    
+                }
+                cadeiaAux=cadeia+'"';
+                cadeia = "";
+                
+                if(condicionalC==1){
+                    condicionalC = 0;
+                    return (new Token(cadeiaAux, TipoToken.Cadeia, linha-1));
+                }else{
+                    return (new Token(cadeiaAux, TipoToken.Cadeia, linha));
+                }
+            }
+            
             //comentario--------------------------------------------------------
             if (c == '#') {
                 while (c != '\n') {
@@ -306,7 +336,8 @@ public class GyhLex {
                         return (new Token("then", TipoToken.PCEntao, linha));
                     }
                     break;
-
+               
+                    
                 //operador booleano "or"
                 case 'o':
                     if (aux.equals("")) {

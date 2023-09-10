@@ -1,0 +1,395 @@
+package AnalisadorLexico;
+
+public class GyhLex {
+
+    public LeitorArquivo ldat;
+    public int linha = 1;
+    int auxInt = 0;
+    int condicional = 0;
+    int condicionalNum = 0;
+    public String aux = "";
+    public char auxC=' ';
+    public String var = "";
+    public String var2 = "";
+    public String varNum = "";
+    public String varNumD = "";
+    public char gambiarra = ' ';
+    public boolean ereal = false;
+
+    public GyhLex(String nomeArq) {
+        this.ldat = new LeitorArquivo(nomeArq);
+    }
+
+    public Token proximoToken() {
+        int proxCaractere = -1;
+        
+        while ((proxCaractere = ldat.lerProximoCaractere()) != -1) {
+            char c = (char) proxCaractere;
+            //System.out.print(c);
+            //System.out.println(linha);
+            if (c == ' ' || c == '\n') {
+                aux = "";
+                if (c == '\n') {
+                    linha++; 
+                }
+            }
+            
+            //numeros-----------------------------------------------------------
+            if (c=='1'|| c=='2' || c=='3'||c=='4'||c=='5'||c=='6'||c=='7'||c=='8'|| c=='9'||c=='0'){
+                
+                while(c=='1'|| c=='2'||c=='3'||c=='4'||c=='5'||c=='6'||c=='7'||c=='8'|| c=='9'||c=='0'||c=='.'){
+                    varNum=varNum+c;
+                    proxCaractere = ldat.lerProximoCaractere();
+                    c = (char) proxCaractere;
+                    
+                    if (c=='\n'){
+                    linha++;
+                    condicionalNum = 1;
+                    }
+                    if(c==')'){
+                        gambiarra=')';
+                    }
+                    if(c=='.'){
+                        ereal = true;
+                    }
+                }
+                
+                varNumD=varNum;
+                varNum="";
+                if(condicionalNum==1){
+                    condicionalNum= 0;
+                    
+                    if(ereal==true){
+                        return (new Token(varNumD, TipoToken.NumReal, linha-1));
+                        
+                    }else{
+                        return (new Token(varNumD, TipoToken.NumInt, linha-1));
+                    }
+                    
+                }else{
+                    if(ereal==true){
+                        return (new Token(varNumD, TipoToken.NumReal, linha));
+                        
+                    }else{
+                        return (new Token(varNumD, TipoToken.NumInt, linha));
+                    }
+                }
+            }
+            
+            //Verificar variaveis-----------------------------------------------
+            if (Character.isUpperCase(c)) {
+                while (Character.isLetter(c)) {
+                    var = var + c;
+                    proxCaractere = ldat.lerProximoCaractere();
+                    c = (char) proxCaractere;
+                    
+                    //System.out.print(c);
+                    if (c == '[') {
+                        //System.out.println("achei o danado");
+                        condicional =0;
+                        gambiarra = '[';
+                       
+                    }
+                    if (c=='\n'){
+                        linha++;
+                        condicional = 1;
+                    }
+                    
+                }
+                var2 = var;
+                var = "";
+
+                if(condicional==1){
+                    condicional = 0;
+                    return (new Token(var2, TipoToken.Var, linha-1));
+                }else{
+                    return (new Token(var2, TipoToken.Var, linha));
+                }
+            }
+
+            //comentario--------------------------------------------------------
+            if (c == '#') {
+                while (c != '\n') {
+                    proxCaractere = ldat.lerProximoCaractere();
+                    c = (char) proxCaractere;
+                }
+                linha++;
+            }
+   
+            switch (c) {
+
+                //operacoes aritmeticas-----------------------------------------
+                case '+':
+                    return (new Token("+", TipoToken.OpAritSoma, linha));
+                case '-':
+                    return (new Token("-", TipoToken.OpAritSub, linha));
+                case '/':
+                    return (new Token("/", TipoToken.OpAritDiv, linha));
+                case '*':
+                    return (new Token("*", TipoToken.OpAritMult, linha));
+
+                //Delimitadores-------------------------------------------------
+                case '[':
+                    aux = "[";
+                    return (new Token("[", TipoToken.IniDelim, linha));
+
+                case ']':
+                    return (new Token("]", TipoToken.FimDelim, linha));
+
+                //operadores relacionais----------------------------------------
+                case '<':
+                    aux = aux + "<";
+                    if (aux.equals("<<")) {
+                        //atribuicao--------------------------------------------
+                        aux = "";
+                        return (new Token("<<", TipoToken.Atrib, linha));
+
+                    } else if (aux.equals("")) {
+                        aux = "";
+                        return (new Token("<", TipoToken.OpRelMenor, linha));
+                    }
+                    break;
+
+                case '=':
+                    aux = aux + "=";
+                    if (aux.equals("<")) {
+                        aux = "";
+                        return (new Token("<=", TipoToken.OpRelMenorIgual, linha));
+                    } else if (aux.equals("==")) {
+                        aux = "";
+                        return (new Token("==", TipoToken.OpRelIgual, linha));
+                    }
+                    break;
+
+                case '>':
+                    aux = ">";
+
+                    if (aux.equals("<")) {
+                        aux = "";
+                        return (new Token("<>", TipoToken.OpRelDif, linha));
+                    } else if (aux.equals("=")) {
+                        aux = "";
+                        return (new Token(">=", TipoToken.OpRelMaiorIgual, linha));
+                    } else {
+                        return (new Token(">", TipoToken.OpRelMaior, linha));
+                    }
+
+                //parentesis----------------------------------------------------
+                case '(':
+                    return (new Token("(", TipoToken.AbrePar, linha));
+                case ')':
+                    return (new Token(")", TipoToken.FechaPar, linha));
+
+                //operador booleano "and"---------------------------------------
+                case 'a':
+                    if (aux.equals("flo") || aux.equals("re") || aux.equals("") || aux.equals("st")) {
+                        aux = aux + "a";
+                    }
+
+                    break;
+
+                case 'c':
+                    if (aux.equals("de")) {
+                        aux = "";
+                        return (new Token("dec", TipoToken.PCDec, linha));
+                    }
+                    break;
+
+                case 'd':
+                    if (aux.equals("an")) {
+                        this.aux = "";
+                        return (new Token("and", TipoToken.OpBoolE, linha));
+
+                    } else if (aux.equals("en")) {
+                        this.aux = "";
+                        return (new Token("end", TipoToken.PCFim, linha));
+
+                    } else if (aux.equals("[")) {
+                        this.aux = "d";
+                        break;
+                    } else if (aux.equals("rea")) {
+                        aux = "";
+                        return (new Token("read", TipoToken.PCLer, linha));
+                    }
+
+                //palavra-chave "end","dec"
+                case 'e':
+                    if (aux.equals("")) {
+                        aux = "e";
+
+                    } else if (aux.equals("d")) {
+                        aux = aux + "e";
+                    } else if (aux.equals("int")) {
+                        aux = aux + "e";
+                    } else if (aux.equals("integ")) {
+                        aux = aux + "e";
+                    } else if (aux.equals("r")) {
+                        aux = aux + "e";
+                    } else if (aux.equals("")) {
+                        aux = "e";
+                    } else if (aux.equals("els")) {
+                        aux = "";
+                        return (new Token("else", TipoToken.PCSenao, linha));
+                    } else if (aux.equals("th")) {
+                        aux = aux + "e";
+                    } else if (aux.equals("whil")) {
+                        aux = "";
+                        return (new Token("while", TipoToken.PCEnqto, linha));
+                    }
+
+                    break;
+
+                case 'f':
+                    //System.out.println("achei o f " + aux);
+                    if (aux.equals("i")) {
+                        return (new Token("if", TipoToken.PCSe, linha));
+                    } else {
+                        aux = "f";
+                    }
+                    break;
+
+                case 'g':
+                    if (aux.equals("inte")) {
+                        aux = aux + "g";
+                    } else if (aux.equals("pro")) {
+                        aux = "";
+                        return (new Token("prog", TipoToken.PCProg, linha));
+                    }
+                    break;
+
+                case 'h':
+                    if (aux.equals("t")) {
+                        aux = aux + "h";
+                    } else if (aux.equals("w")) {
+                        aux = aux + "h";
+                    }
+                    break;
+
+                case 'i':
+                    if (aux.equals("")) {
+                        aux = "i";
+
+                    } else if (aux.equals("[")) {
+                        aux = "i";
+                        condicional = 1;
+                    } else if (aux.equals("pr")) {
+                        aux = aux + "i";
+                    } else if (aux.equals("wh")) {
+                        aux = aux + "i";
+                    }
+                    break;
+
+                case 'l':
+                    if (aux.equals("f")) {
+                        aux = "fl";
+                    } else if (aux.equals("e")) {
+                        aux = aux + "l";
+                    } else if (aux.equals("whi")) {
+                        aux = aux + "l";
+                    }
+                    break;
+
+                case 'n':
+                    if (aux.equals("a")) {
+                        aux = aux + "n";
+
+                    } else if (aux.equals("e")) {
+                        aux = aux + "n";
+
+                    } else if (aux.equals("i")) {
+                        aux = aux + "n";
+
+                    } else if (aux.equals("pri")) {
+                        aux = aux + "n";
+                    } else if (aux.equals("the")) {
+                        aux = "";
+                        return (new Token("then", TipoToken.PCEntao, linha));
+                    }
+                    break;
+
+                //operador booleano "or"
+                case 'o':
+                    if (aux.equals("")) {
+                        aux = "o";
+                    } else if (aux.equals("pr")) {
+                        aux = aux + "o";
+                    } else if (aux.equals("fl")) {
+                        aux = aux + "o";
+                    }
+
+                    break;
+
+                case 'p':
+                    if (aux.equals("[")) {
+                        aux = "p";
+                    } else if (aux.equals("")) {
+                        aux = aux + "p";
+                    }
+                    break;
+
+                case 'r':
+                    
+                    if (aux.equals("o") && ldat.lerProximoCaractere() == ' ') {
+                        
+                        aux = "";
+                        return (new Token("or", TipoToken.OpBoolOu, linha));
+
+                    } else if (aux.equals("intege")) {
+                        aux = "";
+                        return (new Token("integer", TipoToken.PCInt, linha));
+
+                    } else if (aux.equals("p") || aux.equals("") || aux.equals("sta")) {
+                        aux = aux + "r";
+                    }
+
+                    break;
+
+                case 's':
+                    if (aux.equals("el")) {
+                        aux = aux + "s";
+                    } else if (aux.equals("")) {
+                        aux = "s";
+                    }
+                    break;
+
+                case 't':
+                    if (aux.equals("in")) {
+                        aux = aux + "t";
+                    } else if (aux.equals("floa")) {
+                        aux = "";
+                        return (new Token("float", TipoToken.PCReal, linha));
+                    } else if (aux.equals("prin")) {
+                        aux = "";
+                        return (new Token("print", TipoToken.PCImprimir, linha));
+                    } else if (aux.equals("")) {
+                        aux = "t";
+                    } else if (aux.equals("s")) {
+                        aux = aux + "t";
+                    } else if (aux.equals("star")) {
+                        aux = "";
+                        return (new Token("start", TipoToken.PCIni, linha));
+                    }
+                    break;
+
+                case 'w':
+                    if (aux.equals("")) {
+                        aux = aux + "w";
+                    }
+                    break;
+
+            }//switch principal
+
+            if (gambiarra == '[') {
+                gambiarra = ' ';
+                return (new Token("[", TipoToken.IniDelim, linha));
+            }else if(gambiarra == ')'){
+                gambiarra = ' ';
+                return (new Token(")", TipoToken.FechaPar, linha));
+            }
+            
+        }//while----------------------------------------------------------------
+        
+        
+        return null;
+    }
+}

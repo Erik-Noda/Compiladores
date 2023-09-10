@@ -2,7 +2,7 @@ package AnalisadorLexico;
 
 public class GyhLex {
 
-     public LeitorArquivo ldat;
+    public LeitorArquivo ldat;
     public int linha = 1;
     int auxInt = 0;
     public String cadeia = "";
@@ -30,6 +30,7 @@ public class GyhLex {
         while ((proxCaractere = ldat.lerProximoCaractere()) != -1) {
             char c = (char) proxCaractere;
             //System.out.println(c);
+            
             
             //System.out.println(linha);
             if (c == ' ' || c == '\n') {
@@ -82,31 +83,36 @@ public class GyhLex {
             }
             
             //Verificar variaveis-----------------------------------------------
-            if (Character.isUpperCase(c) && var.equals("")) {
-                while (Character.isLetter(c) && c!='[') {
-                    var = var + c;
-                    proxCaractere = ldat.lerProximoCaractere();
-                    c = (char) proxCaractere;
-                    
-                    if (c == '[') {
-                        //System.out.println("achei o danado");
-                        condicional =0;
-                        gambiarra = '[';
-                    }
-                    if (c=='\n'){
-                        linha++;
-                        condicional = 1;
-                    }
-                    
-                }
-                var2 = var;
-                var = "";
+            if (Character.isUpperCase(c)) {
 
-                if(condicional==1){
-                    condicional = 0;
-                    return (new Token(var2, TipoToken.Var, linha-1));
-                }else{
-                    return (new Token(var2, TipoToken.Var, linha));
+                if (!aux.equals("")) {
+                    System.out.println("Erro Lexico: <iNteger, linha: " + linha + "> nao eh Palavra Chave");
+                    
+                } else {
+                    while (Character.isLetter(c)) {
+                        var = var + c;
+                        proxCaractere = ldat.lerProximoCaractere();
+                        c = (char) proxCaractere;
+                        if (c == '[') {
+                            //System.out.println("achei o danado");
+                            condicional = 0;
+                            gambiarra = '[';
+                            break;
+                        }
+                        if (c == '\n') {
+                            linha++;
+                            condicional = 1;
+                        }
+                    }
+                    var2 = var;
+                    var = "";
+
+                    if (condicional == 1) {
+                        condicional = 0;
+                        return (new Token(var2, TipoToken.Var, linha - 1));
+                    } else {
+                        return (new Token(var2, TipoToken.Var, linha));
+                    }
                 }
             }
             
@@ -407,7 +413,13 @@ public class GyhLex {
                         aux = aux + "w";
                     }
                     break;
-
+                
+                default:
+                    if(c!=' ' && c != '\n' && c!= '1'&& c!= '2'&& c!= '3'&& c!= '4'&& c!= '5'&& c!= '6'&& c!= '7'&& c!= '8'&& c!= '9'&& c!= '0' && c!= '\t' && !Character.isLetter(c)){
+                        System.out.println("Erro Léxico: <"+ c+ ">" +linha+ " caractere desconhecido");
+                    }
+                        
+                
             }//switch principal
 
             if (gambiarra == '[') {
@@ -419,8 +431,7 @@ public class GyhLex {
             }
             
         }//while----------------------------------------------------------------
-        
-        
+             
         return null;
     }
 }

@@ -1,0 +1,241 @@
+
+package AnalisadorLexico;
+
+public class AnalisadorSintatico {
+    int I = -1;
+    public LeitorArquivo ldat;
+    
+    public AnalisadorSintatico(String nomeArq) {
+        this.ldat = new LeitorArquivo(nomeArq);
+    }
+    
+    public void match(char t){
+        if(I==t){
+            I=ldat.lerProximoCaractere();
+        }else{
+            System.out.println("ERRO!");
+        }
+    }
+    
+    public void P(){
+        if(I=='['){
+            match('[');
+            match('d');
+            match('e');
+            match('c');
+            match(']');
+            LD();
+            match('[');
+            match('p');
+            match('r');
+            match('o');
+            match('g');
+            match(']');
+            LC();
+        }
+    }
+    
+    public void LD(){
+        D();
+        DLinha();
+    }
+    
+    public void D(){
+        match(VARIAVEL);
+        match('[');
+        TV();
+        match(']');
+    }
+    
+    public void DLinha(){
+        LD();
+    }
+    
+    public void TV(){
+        if(I=='i'){
+            match('i');
+            match('n');
+            match('t');
+            match('e');
+            match('g');
+            match('e');
+            match('r');
+        }
+        if(I=='f'){
+            match('f');
+            match('l');
+            match('o');
+            match('a');
+            match('t');
+        }    
+    }
+    
+    public void EA(){
+        TA();
+        EALinha();
+    }
+    
+    public void EALinha(){
+        if(I=='+'){
+            match('+');
+            TA();
+            EALinha();
+        }
+        if(I=='-'){
+            match('-');
+            TA();
+            EALinha();
+        }
+    }
+    
+    public void TA(){
+        FA();
+        TALinha();
+    }
+    
+    public void TALinha(){
+        if(I=='*'){
+            match('*');
+            FA();
+            TALinha();
+        }
+        if(I=='/'){
+            match('/');
+            FA();
+            TALinha();
+        }
+    }
+    
+    public void FA(){
+        match(NUMINT);
+        match(NUMREAL);
+        match(VARIAVEL);
+        if(I=='('){
+            match('(');
+            EA();
+            match(')');
+            
+        }
+    }
+    
+    public void ER(){
+        TR();
+        ERLinha();
+    }
+    
+    public void ERLinha(){
+        OB();
+        TR();
+        ERLinha();
+    }
+    
+    public void TR(){
+        EA();
+        OP_REL;
+        EA();
+        
+        if(I=='('){
+            match('(');
+            EA();
+            match(')');
+        }
+    }
+    
+    public void OB(){
+        if(I=='o'){
+            match('o');
+            match('r');
+        }
+        if(I=='a'){
+            match('a');
+            match('n');
+            match('d');
+        }
+    }
+    
+    public void LC(){
+        C();
+        LCLinha();
+        
+    }
+    
+    public void LCLinha(){
+        LC();
+    }
+    
+    public void C(){
+        CA();
+        CE();
+        CS();
+        CC();
+        CR();
+        SA();
+    }
+    
+    public void CA(){
+        VAR;
+        match('<');
+        match('<');
+        EA();
+    }
+    public void CE(){
+        match('r');
+        match('e');
+        match('a');
+        match('d');
+        VAR;
+    }
+    public void CS(){
+        match('p');
+        match('r');
+        match('i');
+        match('n');
+        match('t');
+        VAR;
+        CADEIA;
+    }
+    
+    public void CC(){
+        
+        match('i');
+        match('f');
+        
+        ER();
+        match('t');
+        match('h');
+        match('e');
+        match('n');
+        C();
+        CCLinha();
+               
+    }
+    public void CCLinha(){
+        match('i');
+        match('f');
+        C();
+    }
+    public void CR(){
+        match('w');
+        match('h');
+        match('i');
+        match('l');
+        match('e');
+        ER();
+        match('t');
+        match('h');
+        match('e');
+        match('n');
+        C();
+    }
+    public void SA(){
+        match('s');
+        match('t');
+        match('a');
+        match('r');
+        match('t');
+        LC();
+        match('e');
+        match('n');
+        match('d');
+    }
+}

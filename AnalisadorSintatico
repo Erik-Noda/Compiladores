@@ -1,72 +1,78 @@
-
 package AnalisadorLexico;
 
+import java.util.ArrayList;
+
 public class AnalisadorSintatico {
-    int I = -1;
-    public LeitorArquivo ldat;
+    TipoToken lookahead;
+    ArrayList<Token>lista;
+    int indice = 0;
+    Token tokenFinal = new Token("$",TipoToken.TokenFinal,-1);
     
-    public AnalisadorSintatico(String nomeArq) {
-        this.ldat = new LeitorArquivo(nomeArq);
+    public AnalisadorSintatico(ArrayList<Token>lista) {
+        this.lista = lista;
+        this.lookahead = lista.get(indice).padrao;
     }
     
-    public void match(char t){
-        if(I==t){
-            I=ldat.lerProximoCaractere();
+    public void match(TipoToken t){
+        if(lookahead==t){
+            System.out.println(lista.get(indice).linha+ " " +lookahead + "çççç");
+            indice++;
+            lookahead = lista.get(indice).padrao;
+            //System.out.println(lookahead);
         }else{
-            System.out.println("ERRO!");
+            System.out.println("#Erro na linha " + lista.get(indice).linha + ", devido a incoerencia com o tipoToken "+ lista.get(indice).padrao);
+            System.exit(0);
         }
     }
     
     public void P(){
-        if(I=='['){
-            match('[');
-            match('d');
-            match('e');
-            match('c');
-            match(']');
+        
+        
+        if(lookahead== TipoToken.IniDelim){
+            match(TipoToken.IniDelim);
+            match(TipoToken.PCDec);
+            
+            match(TipoToken.FimDelim);
             LD();
-            match('[');
-            match('p');
-            match('r');
-            match('o');
-            match('g');
-            match(']');
+            match(TipoToken.IniDelim);
+            match(TipoToken.PCProg);
+            match(TipoToken.FimDelim);
             LC();
+            cifrao();
+        }
+        
+    }
+    public void cifrao(){
+        if(lookahead==TipoToken.TokenFinal){
+            System.out.println("SUCESSO");
         }
     }
     
     public void LD(){
+        
         D();
         DLinha();
     }
     
     public void D(){
-        match(VARIAVEL);
-        match('[');
+        match(TipoToken.Var);
+        match(TipoToken.IniDelim);
         TV();
-        match(']');
+        match(TipoToken.FimDelim);
     }
     
     public void DLinha(){
-        LD();
+        if(lookahead == TipoToken.Var){
+            LD();
+        }
     }
     
     public void TV(){
-        if(I=='i'){
-            match('i');
-            match('n');
-            match('t');
-            match('e');
-            match('g');
-            match('e');
-            match('r');
+        if(lookahead==TipoToken.PCInt){
+            match(TipoToken.PCInt);
         }
-        if(I=='f'){
-            match('f');
-            match('l');
-            match('o');
-            match('a');
-            match('t');
+        if(lookahead==TipoToken.PCReal){
+            match(TipoToken.PCReal);
         }    
     }
     
@@ -76,80 +82,121 @@ public class AnalisadorSintatico {
     }
     
     public void EALinha(){
-        if(I=='+'){
-            match('+');
+        if(lookahead==TipoToken.OpAritSoma){
+            match(TipoToken.OpAritSoma);
             TA();
             EALinha();
         }
-        if(I=='-'){
-            match('-');
+        if(lookahead==TipoToken.OpAritSub){
+            match(TipoToken.OpAritSub);
             TA();
             EALinha();
         }
     }
     
     public void TA(){
+        
         FA();
         TALinha();
     }
     
     public void TALinha(){
-        if(I=='*'){
-            match('*');
+        if(lookahead==TipoToken.OpAritMult){
+            match(TipoToken.OpAritMult);
             FA();
             TALinha();
         }
-        if(I=='/'){
-            match('/');
+        if(lookahead==TipoToken.OpAritDiv){
+            match(TipoToken.OpAritDiv);
             FA();
             TALinha();
         }
     }
     
     public void FA(){
-        match(NUMINT);
-        match(NUMREAL);
-        match(VARIAVEL);
-        if(I=='('){
-            match('(');
+        if(lookahead==TipoToken.NumInt) {
+            match(TipoToken.NumInt);
+        }
+        if(lookahead==TipoToken.NumReal) {
+            match(TipoToken.NumReal);
+        }
+        if(lookahead==TipoToken.Var) {
+            
+            match(TipoToken.Var);
+        }
+        
+        if(lookahead==TipoToken.AbrePar){
+            match(TipoToken.AbrePar);
             EA();
-            match(')');
+            match(TipoToken.FechaPar);
             
         }
     }
     
     public void ER(){
+        
         TR();
         ERLinha();
     }
     
     public void ERLinha(){
-        OB();
-        TR();
-        ERLinha();
+        if(lookahead==TipoToken.OpBoolE){
+            OB();
+            TR();
+            ERLinha();
+        }
+        if(lookahead==TipoToken.OpBoolOu){
+            OB();
+            TR();
+            ERLinha();
+        }
     }
     
     public void TR(){
         EA();
-        OP_REL;
-        EA();
-        
-        if(I=='('){
-            match('(');
+        if(lookahead==TipoToken.OpRelIgual){
+            match(TipoToken.OpRelIgual);
             EA();
-            match(')');
+        }
+        
+        if(lookahead==TipoToken.OpRelDif){
+            match(TipoToken.OpRelDif);
+            EA();
+        }
+        
+        if(lookahead==TipoToken.OpRelMaior){
+            match(TipoToken.OpRelMaior);
+            EA();
+        }
+        
+        if(lookahead==TipoToken.OpRelMaiorIgual){
+            match(TipoToken.OpRelMaiorIgual);
+            EA();
+        }
+        
+        if(lookahead==TipoToken.OpRelMenor){
+            match(TipoToken.OpRelMenor);
+            EA();
+        }
+        
+        if(lookahead==TipoToken.OpRelMenorIgual){
+            match(TipoToken.OpRelMenorIgual);
+            EA();
+        }
+        
+        if(lookahead==TipoToken.AbrePar){
+             match(TipoToken.AbrePar);
+            EA();
+            match(TipoToken.FechaPar);
         }
     }
     
     public void OB(){
-        if(I=='o'){
-            match('o');
-            match('r');
+        if(lookahead==TipoToken.OpBoolOu){
+            match(TipoToken.OpBoolOu);
         }
-        if(I=='a'){
-            match('a');
-            match('n');
-            match('d');
+        if(lookahead==TipoToken.OpBoolE){
+            match(TipoToken.OpBoolE);
         }
     }
     
@@ -160,82 +207,88 @@ public class AnalisadorSintatico {
     }
     
     public void LCLinha(){
-        LC();
+        
+        if(lookahead==TipoToken.Var || lookahead==TipoToken.PCLer || lookahead==TipoToken.PCImprimir || lookahead==TipoToken.PCSe || lookahead==TipoToken.PCEnqto){
+            LC();
+        }
     }
     
     public void C(){
-        CA();
-        CE();
-        CS();
-        CC();
-        CR();
-        SA();
+        
+        if(lookahead==TipoToken.Var){    
+            CA();
+        }
+        if (lookahead==TipoToken.PCLer) {
+            CE();  
+        }
+        if (lookahead==TipoToken.PCImprimir) {
+            CS();
+        }
+        if (lookahead==TipoToken.PCSe) {
+            CC();
+        }
+        if (lookahead==TipoToken.PCEnqto) {
+            CR();
+        }
+        if (lookahead==TipoToken.PCIni) {
+            SA();
+        }
     }
     
     public void CA(){
-        VAR;
-        match('<');
-        match('<');
+        match(TipoToken.Var);
+        match(TipoToken.Atrib);
         EA();
     }
     public void CE(){
-        match('r');
-        match('e');
-        match('a');
-        match('d');
-        VAR;
+        match(TipoToken.PCLer);
+        match(TipoToken.Var);
     }
     public void CS(){
-        match('p');
-        match('r');
-        match('i');
-        match('n');
-        match('t');
-        VAR;
-        CADEIA;
+        match(TipoToken.PCImprimir);
+        CSLinha();
+        
+    }
+    
+    public void CSLinha(){
+        if(lookahead == TipoToken.Var){
+            match(TipoToken.Var);
+            
+        }
+        if(lookahead == TipoToken.Cadeia){
+            match(TipoToken.Cadeia);
+            
+        }
+        
     }
     
     public void CC(){
         
-        match('i');
-        match('f');
+        match(TipoToken.PCSe);
         
         ER();
-        match('t');
-        match('h');
-        match('e');
-        match('n');
+        match(TipoToken.PCEntao);
         C();
         CCLinha();
                
     }
     public void CCLinha(){
-        match('i');
-        match('f');
-        C();
+        if(lookahead == TipoToken.PCSe){
+            match(TipoToken.PCSe);
+            C();    
+        }
     }
     public void CR(){
-        match('w');
-        match('h');
-        match('i');
-        match('l');
-        match('e');
+        
+        match(TipoToken.PCEnqto);
         ER();
-        match('t');
-        match('h');
-        match('e');
-        match('n');
+        match(TipoToken.PCEntao);
         C();
     }
     public void SA(){
-        match('s');
-        match('t');
-        match('a');
-        match('r');
-        match('t');
+        match(TipoToken.PCIni);
         LC();
-        match('e');
-        match('n');
-        match('d');
+        match(TipoToken.PCFim);
     }
+    
 }

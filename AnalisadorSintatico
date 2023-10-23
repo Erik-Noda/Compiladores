@@ -15,12 +15,12 @@ public class AnalisadorSintatico {
     
     public void match(TipoToken t){
         if(lookahead==t){
-            System.out.println(lista.get(indice).linha+ " " +lookahead + "çççç");
+            System.out.println(lista.get(indice).linha+ " " +lookahead + "ç");
             indice++;
             lookahead = lista.get(indice).padrao;
             //System.out.println(lookahead);
         }else{
-            System.out.println("#Erro na linha " + lista.get(indice).linha + ", devido a incoerencia com o tipoToken "+ lista.get(indice).padrao);
+            System.out.println("#Erro na linha " + lista.get(indice).linha);
             System.exit(0);
         }
     }
@@ -29,6 +29,7 @@ public class AnalisadorSintatico {
         
         
         if(lookahead== TipoToken.IniDelim){
+            //System.out.println("P");
             match(TipoToken.IniDelim);
             match(TipoToken.PCDec);
             
@@ -49,12 +50,13 @@ public class AnalisadorSintatico {
     }
     
     public void LD(){
-        
+        //System.out.println("LD");
         D();
         DLinha();
     }
     
     public void D(){
+        //System.out.println("D");
         match(TipoToken.Var);
         match(TipoToken.IniDelim);
         TV();
@@ -62,90 +64,107 @@ public class AnalisadorSintatico {
     }
     
     public void DLinha(){
+        //System.out.println("DLinha");
         if(lookahead == TipoToken.Var){
             LD();
         }
     }
     
     public void TV(){
+        //System.out.println("TV");
         if(lookahead==TipoToken.PCInt){
             match(TipoToken.PCInt);
-        }
-        if(lookahead==TipoToken.PCReal){
+        }else if(lookahead==TipoToken.PCReal){
             match(TipoToken.PCReal);
-        }    
+        }else{
+            System.out.println("ERRO linha "+ lista.get(indice).linha);
+            System.exit(0);
+        }
     }
     
     public void EA(){
+        //System.out.println("EA");
         TA();
+       // System.out.println("Dentro da Expressao Aritmetica "+ lista.get(indice) );
         EALinha();
     }
     
     public void EALinha(){
+        //System.out.println("EALinha");
+        //System.out.println("Dentro da Expressao Aritmetica LINHA "+ lista.get(indice) );
         if(lookahead==TipoToken.OpAritSoma){
             match(TipoToken.OpAritSoma);
-            TA();
-            EALinha();
-        }
-        if(lookahead==TipoToken.OpAritSub){
+            //TA();
+            //EALinha();
+            EA();
+        }else if(lookahead==TipoToken.OpAritSub){
             match(TipoToken.OpAritSub);
-            TA();
-            EALinha();
+            //TA();
+            //EALinha();
+            EA();
         }
     }
     
     public void TA(){
-        
+        //System.out.println("TA");
         FA();
+        //System.out.println("Dentro do Termo Arit "+ lista.get(indice) );
         TALinha();
     }
     
     public void TALinha(){
+        //System.out.println("TALinha");
+        //System.out.println("Dentro do Termo Arit LINHA "+ lista.get(indice) );
         if(lookahead==TipoToken.OpAritMult){
             match(TipoToken.OpAritMult);
-            FA();
-            TALinha();
-        }
-        if(lookahead==TipoToken.OpAritDiv){
+            //FA();
+            //TALinha();
+            TA();
+        }else if(lookahead==TipoToken.OpAritDiv){
             match(TipoToken.OpAritDiv);
-            FA();
-            TALinha();
+            //FA();
+            //TALinha();
+            TA();
         }
     }
     
     public void FA(){
+        //System.out.println("FA");
+        //System.out.println("Dentro do Fator Arit "+ lista.get(indice) );
+        
+        
         if(lookahead==TipoToken.NumInt) {
             match(TipoToken.NumInt);
-        }
-        if(lookahead==TipoToken.NumReal) {
+            //System.out.println("Dentro do NUMINT "+lista.get(indice));
+            return;
+        }else if(lookahead==TipoToken.NumReal) {
             match(TipoToken.NumReal);
-        }
-        if(lookahead==TipoToken.Var) {
-            
+            return;
+        }else if(lookahead==TipoToken.Var) {
+            //System.out.println("Entrei If var FA");
             match(TipoToken.Var);
-        }
-        
-        if(lookahead==TipoToken.AbrePar){
+            //System.out.println("Dentro do var FA"+ lista.get(indice) );
+            return;
+        }else if(lookahead==TipoToken.AbrePar){
             match(TipoToken.AbrePar);
             EA();
             match(TipoToken.FechaPar);
-            
+            return;
+        }else{
+            System.out.println("ERRO linha "+ lista.get(indice).linha);
+            System.exit(0);
         }
     }
     
     public void ER(){
-        
+        //System.out.println("ER");
         TR();
         ERLinha();
     }
     
     public void ERLinha(){
-        if(lookahead==TipoToken.OpBoolE){
-            OB();
-            TR();
-            ERLinha();
-        }
-        if(lookahead==TipoToken.OpBoolOu){
+        //System.out.println("ERLinha");
+        if(lookahead==TipoToken.OpBoolE || lookahead==TipoToken.OpBoolOu){
             OB();
             TR();
             ERLinha();
@@ -153,117 +172,127 @@ public class AnalisadorSintatico {
     }
     
     public void TR(){
-        EA();
-        if(lookahead==TipoToken.OpRelIgual){
+        //System.out.println("TR");
+
+        
+        if(lookahead==TipoToken.Var){
+            EA();
+            
+            if(lookahead == TipoToken.OpRelIgual){
             match(TipoToken.OpRelIgual);
-            EA();
-        }
-        
-        if(lookahead==TipoToken.OpRelDif){
+            }else if(lookahead == TipoToken.OpRelDif){
             match(TipoToken.OpRelDif);
-            EA();
-        }
-        
-        if(lookahead==TipoToken.OpRelMaior){
+            }else if(lookahead == TipoToken.OpRelMaior){
             match(TipoToken.OpRelMaior);
-            EA();
-        }
-        
-        if(lookahead==TipoToken.OpRelMaiorIgual){
+            }else if(lookahead == TipoToken.OpRelMaiorIgual){
             match(TipoToken.OpRelMaiorIgual);
-            EA();
-        }
-        
-        if(lookahead==TipoToken.OpRelMenor){
+            }else if(lookahead == TipoToken.OpRelMenor){
             match(TipoToken.OpRelMenor);
-            EA();
-        }
-        
-        if(lookahead==TipoToken.OpRelMenorIgual){
+            }else if(lookahead == TipoToken.OpRelMenorIgual){
             match(TipoToken.OpRelMenorIgual);
+            }
+
             EA();
-        }
-        
-        if(lookahead==TipoToken.AbrePar){
-             match(TipoToken.AbrePar);
-            EA();
+            
+        }else if(lookahead==TipoToken.AbrePar){
+            match(TipoToken.AbrePar);
+            ER();
             match(TipoToken.FechaPar);
+        }else{
+            System.out.println("ERRO linha "+ lista.get(indice).linha);
+            System.exit(0);
         }
     }
     
     public void OB(){
+        //System.out.println("OB");
         if(lookahead==TipoToken.OpBoolOu){
             match(TipoToken.OpBoolOu);
-        }
-        if(lookahead==TipoToken.OpBoolE){
+        }else if(lookahead==TipoToken.OpBoolE){
             match(TipoToken.OpBoolE);
+        }else{
+            System.out.println("ERRO linha "+ lista.get(indice).linha);
+            System.exit(0);
         }
     }
     
     public void LC(){
+        //System.out.println("LC");
+        //System.out.println("Entrou LC " + lista.get(indice));
         C();
         LCLinha();
         
     }
     
     public void LCLinha(){
-        
-        if(lookahead==TipoToken.Var || lookahead==TipoToken.PCLer || lookahead==TipoToken.PCImprimir || lookahead==TipoToken.PCSe || lookahead==TipoToken.PCEnqto){
+        //System.out.println("LCLinha");
+        //System.out.println(lookahead);
+        //System.out.println("Entrou LC LINHA" + lista.get(indice));
+        if(lookahead==TipoToken.Var){
+            LC();
+        }else if (lookahead==TipoToken.PCLer) {
+            LC();
+        }else if (lookahead==TipoToken.PCImprimir) {
+            LC();
+        }else if (lookahead==TipoToken.PCSe) {
+            LC();
+        }else if (lookahead==TipoToken.PCEnqto) {
             LC();
         }
     }
     
     public void C(){
-        
+        //System.out.println("Entrou Comando " + lista.get(indice));
         if(lookahead==TipoToken.Var){    
+            //System.out.println("Entrou no if Atrib");
             CA();
-        }
-        if (lookahead==TipoToken.PCLer) {
+        }else if (lookahead==TipoToken.PCLer) {
             CE();  
-        }
-        if (lookahead==TipoToken.PCImprimir) {
+        }else if (lookahead==TipoToken.PCImprimir) {
+            //System.out.println("Entrou no IMPRIMIR"+lista.get(indice));
             CS();
-        }
-        if (lookahead==TipoToken.PCSe) {
+        }else if (lookahead==TipoToken.PCSe) {
             CC();
-        }
-        if (lookahead==TipoToken.PCEnqto) {
+        }else if (lookahead==TipoToken.PCEnqto) {
             CR();
-        }
-        if (lookahead==TipoToken.PCIni) {
+        }else if (lookahead==TipoToken.PCIni) {
             SA();
+        }else{
+            System.out.println("ERRO linha "+ lista.get(indice).linha);
+            System.exit(0);
         }
     }
     
     public void CA(){
+        //System.out.println("Dentro da atribuicao "+ lista.get(indice) );
         match(TipoToken.Var);
         match(TipoToken.Atrib);
         EA();
     }
     public void CE(){
+        //System.out.println("CE");
         match(TipoToken.PCLer);
         match(TipoToken.Var);
     }
     public void CS(){
+        //System.out.println("CS");
         match(TipoToken.PCImprimir);
-        CSLinha();
         
-    }
-    
-    public void CSLinha(){
         if(lookahead == TipoToken.Var){
             match(TipoToken.Var);
-            
-        }
-        if(lookahead == TipoToken.Cadeia){
+        }else if(lookahead == TipoToken.Cadeia){
             match(TipoToken.Cadeia);
-            
+        }else{
+            System.out.println("ERRO linha "+ lista.get(indice).linha);
+            System.exit(0);
         }
         
     }
     
+   
+    
     public void CC(){
-        
+       // System.out.println("CC");
         match(TipoToken.PCSe);
         
         ER();
@@ -273,19 +302,21 @@ public class AnalisadorSintatico {
                
     }
     public void CCLinha(){
-        if(lookahead == TipoToken.PCSe){
-            match(TipoToken.PCSe);
+        //System.out.println("CCLinha");
+        if(lookahead == TipoToken.PCSenao){
+            match(TipoToken.PCSenao);
             C();    
         }
     }
     public void CR(){
-        
+        //System.out.println("CR");
         match(TipoToken.PCEnqto);
         ER();
         match(TipoToken.PCEntao);
         C();
     }
     public void SA(){
+       // System.out.println("SA");
         match(TipoToken.PCIni);
         LC();
         match(TipoToken.PCFim);

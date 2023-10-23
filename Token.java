@@ -12,6 +12,10 @@ public class Token {
         this.linha=lin;
     }
 
+    public TipoToken tipo(){
+        return this.padrao;
+    }
+    
     @Override
     public String toString(){
         return "ç" + this.lexema + "," + this.padrao + "," + this.linha + "ç";

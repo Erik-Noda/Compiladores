@@ -25,7 +25,7 @@ public class GyhLex {
     }
     
     public void erro(){
-        System.out.println("ERRO LEXICO");
+        System.out.println("ERRO LEXICO, linha " + linha);
         System.exit(0);
     }
     
@@ -89,9 +89,9 @@ public class GyhLex {
             
             //Verificar variaveis-----------------------------------------------
             if (Character.isUpperCase(c)) {
-
-                if (!aux.equals("")) {
-                    System.out.println("Erro Lexico: <iNteger, linha: " + linha + "> nao eh Palavra Chave");
+                //System.out.println("AUX= " + aux);
+                if (!aux.equals("") && !aux.equals("[")) {
+                    System.out.println("Erro Lexico, linha: " + linha );
                     
                 } else {
                     while (Character.isLetter(c)) {

@@ -1,0 +1,55 @@
+
+public class Simbolo {
+	private String nome;
+	private String tipo;
+	private String valor;
+
+	
+	public Simbolo (String nome, String tipo, String valor) {
+		this.nome = nome;
+		this.tipo = tipo;
+		this.valor = valor;
+	}
+	
+	
+	public String geradorCodigo() {
+		if(tipo.equals("integer")==true) {
+			return "\tint " + nome+ ";\n";
+		}else {
+			return "\tfloat " + nome+ ";\n";
+		}
+	}
+	
+	public String getNome() {
+		return nome;
+	}
+
+	public void setNome(String nome) {
+		this.nome = nome;
+	}
+
+	public String getTipo() {
+		return tipo;
+	}
+
+	public void setTipo(String tipo) {
+		this.tipo = tipo;
+	}
+
+	public String getValor() {
+		return valor;
+	}
+
+	public void setValor(String valor) {
+		this.valor = valor;
+	}
+	
+	@Override
+	public String toString() {
+		return "Simbolo [nome=" + nome + ", tipo=" + tipo + ", valor=" + valor + "]";
+	}
+	
+	
+	
+	
+}

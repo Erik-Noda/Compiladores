@@ -1,0 +1,33 @@
+import java.io.IOException;
+
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.Token;
+
+public class Main {
+
+	public static void main(String[] args) throws IOException {
+		CharStream cs = CharStreams.fromFileName("programa.gyh");
+		GramaticaLexer lexer= new GramaticaLexer(cs);
+		
+		CommonTokenStream tokens = new CommonTokenStream(lexer);
+		GramaticaParser parser = new GramaticaParser(tokens);
+		parser.programa();
+		
+		parser.geradorComando();
+		
+		//Analise lexica
+		/*Token t;
+		CommonTokenStream tokens= new CommonTokenStream(lexer);
+		
+		
+		while((t=lexer.nextToken()).getType() != Token.EOF) {
+			System.out.println("•" + GramaticaParser.VOCABULARY.getDisplayName(t.getType())+ ',' + t.getText() + "•");
+		}*/
+		
+		
+		
+	}
+
+}

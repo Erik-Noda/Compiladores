@@ -19,7 +19,7 @@ public class ComandoCondicao extends Comando{
 			str+=cmd.geradorCodigo();
 		}
 		str+="\t}\n";
-
+		
 		if(listaFalse.size()>0) {
 			str+="else {\n";
 			for(Comando cmd: listaFalse) {
@@ -28,7 +28,6 @@ public class ComandoCondicao extends Comando{
 			str+="\t}\n";
 			
 		}
-
 		return str;
 	}
 	

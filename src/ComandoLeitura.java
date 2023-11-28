@@ -16,11 +16,11 @@ public class ComandoLeitura extends Comando{
 	@Override
 	public String geradorCodigo() {
 		if(tipo==1) {			
-			return "\tscanf(\"%d\", " + id + ");\n";
+			return "\tscanf(\"%d\", &" + id + ");\n";
 		}else if(tipo == 2) {
-			return "\tscanf(\"%f\", " + id + ");\n";
+			return "\tscanf(\"%f\", &" + id + ");\n";
 		}else {
-			return "\tscanf(\"%s\", " + id + ");\n";
+			return "\tscanf(\"%s\", &" + id + ");\n";
 		}
 			
 	}

@@ -12,7 +12,7 @@ public class ComandoAtribuicao extends Comando{
 	
 	@Override
 	public String geradorCodigo() {
-		// TODO Auto-generated method stub
+		
 		return "\t"+id +" = " + expressao + ";\n";
 	}
 

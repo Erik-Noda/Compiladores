@@ -126,6 +126,9 @@ public class GramaticaLexer extends Lexer {
 		private ArrayList<Comando>_listaTrue= new ArrayList<Comando>();
 		private ArrayList<Comando>_listaFalse= new ArrayList<Comando>();
 		
+		//comando repeticao
+		private String _condicaoWhile;
+		private ArrayList<Comando>_listaWhile= new ArrayList<Comando>();
 		
 		//verificar variaveis
 		public void verificaVar(String nomeVar){
